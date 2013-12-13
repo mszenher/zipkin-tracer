@@ -12,7 +12,17 @@ application.
 ## Usage
 Assuming you are using Bundler, update your Gemfile as follows:
 ```
-gem 'zipkin-tracer', '0.2.0', :git => 'git://github.com/mszenher/zipkin.git', :branch => 'master'
+gem 'zipkin-tracer', :git => 'git://github.com/mszenher/zipkin-tracer.git', :branch => 'master'
 ```
-Note:  you must specify a version above, but the version need not be `0.2.0`; this is just an example.
+Initialize the middleware as follows (this assumes you are doing the initialization in a Rails `config/initializers` file):
+```
+config = Rails.application.config
 
+require 'zipkin-tracer'
+zipkin_tracer = {service_name: 'your service name here', service_port: 9410, sample_rate: 1, scribe_server: "127.0.0.1:9410"}
+
+config.middleware.use ZipkinTracer::RackHandler, zipkin_tracer
+```
+
+In production, you'll probably want to set your `sample_rate` to something less than 1 (which equal 100% sampling).  The url of your 
+scribe server may vary as well.
