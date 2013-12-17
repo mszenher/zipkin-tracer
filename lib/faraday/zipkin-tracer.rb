@@ -1,17 +1,29 @@
+require 'faraday'
+
+# This middleware adds cross-application tracing data to each outgoing request made by Faraday.
+#
 module ZipkinTracer
-  class FaradayHandler
-    def initialize(next_middleware)
-      @next_middleware = next_middleware
-    end
-    
-    def call(env)
-      # do something with the request
-      Thread.current.keys.each do |thread_key|
-        if thread_key.to_s.start_with?('HTTP_X_B3')
-          env[:request_headers][thread_key.to_s.gsub('HTTP_', '')] = Thread.current[thread_key].to_s
-        end
+    class FaradayHandler < ::Faraday::Middleware
+
+      def initialize(app)
+        super(app)
       end
-      @next_middleware.call(env)
+
+      def call(env)
+        # TODO:  It would be nice to do this stuff in a nice loop but Faraday doesn't seem to 
+        # like the loop.  So in future try again to loop!
+        trace_id = Thread.current[:HTTP_X_B3_TRACEID]
+        span_id = Thread.current[:HTTP_X_B3_SPANID]
+        parent_id = Thread.current[:HTTP_X_B3_PARENTID]
+        sampled = Thread.current[:HTTP_X_B3_SAMPLED]
+
+        env[:request_headers]['X-B3-Traceid'] ||= trace_id.to_s
+        env[:request_headers]['X-B3-Spanid'] ||= span_id.to_s
+        env[:request_headers]['X-B3-Parentid'] ||= parent_id.to_s
+        env[:request_headers]['X-B3-Sampled'] ||= sampled.to_s
+      
+        @app.call(env)
+      end
+
     end
-  end
 end
