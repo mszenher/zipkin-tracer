@@ -28,7 +28,8 @@ zipkin_tracer_config = {service_name: 'your service name here', service_port: 94
 config.middleware.use ZipkinTracer::RackHandler, zipkin_tracer_config
 ```
 
-In production, you'll probably want to set your `sample_rate` to something less than 1 (which equal 100% sampling).  The url and port of your scribe server may vary as well.
+In production, you'll probably want to set your `sample_rate` to something less than 1 (which equal 100% sampling); the 
+literature mentions acceptable sampling rates as low as 0.01% for high-traffic servers.  The url and port of your scribe server may vary as well.
 
 To use the Faraday middleware, simply instruct Faraday to use the middleware.  No configuration is required.  You'll probably do something like this:
 ```
