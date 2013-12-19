@@ -42,3 +42,13 @@ connection = Faraday.new 'http://example.com/api' do |conn|
   conn.adapter Faraday.default_adapter
 end
 ```
+
+## Testing
+```
+rspec spec/
+```
+
+## Contributing
+
+Please make a PR into the develop branch.  @ a gem owner in PR.  Please assert (with proof) in the PR that all tests pass and
+that code coverage is at 100%.  Any new code you write must be accompanied by an automated test.
