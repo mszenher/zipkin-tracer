@@ -235,7 +235,7 @@ describe ZipkinTracer::RackHandler do
         sample_count += 1 if Thread.current['HTTP_X_B3_SAMPLED']
       end
       
-      (sample_count > (expected_samples - 5) && sample_count < expected_samples + 5).should be_true
+      (sample_count > (expected_samples - 10) && sample_count < expected_samples + 10).should be_true
     end
       
   end
