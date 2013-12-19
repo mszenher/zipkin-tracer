@@ -34,6 +34,8 @@ module ZipkinTracer extend self
         config = init
       end
 
+      raise ::ArgumentError.new('config must be a hash') unless config.is_a?(Hash)
+      
       raise ::ArgumentError.new('You must provide a service_name in your config') unless config[:service_name]
       @service_name = config[:service_name]
       raise ::ArgumentError.new('You must provide a service_port in your config') unless config[:service_port]

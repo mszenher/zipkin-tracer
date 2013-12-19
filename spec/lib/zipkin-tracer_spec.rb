@@ -15,6 +15,21 @@ describe ZipkinTracer::RackHandler do
       expect{ ZipkinTracer::RackHandler.new(@mocked_app) }.to raise_error(ArgumentError)
     end
 
+    it 'gets config from app if available' do
+      config = double
+      @mocked_app.stub(:config).and_return(config)
+      config.stub(:zipkin_tracer).and_return(@sample_zipkin_tracer_config)
+
+      @mocked_app.should_receive(:config).and_return(config)
+      config.should_receive(:zipkin_tracer).and_return(@sample_zipkin_tracer_config)
+      ZipkinTracer::RackHandler.new(@mocked_app)
+    end
+    
+    it 'raises when config is not a hash' do
+      config = "blah"
+      expect{ ZipkinTracer::RackHandler.new(@mocked_app, config) }.to raise_error(ArgumentError)
+    end
+    
     [:service_name, :service_port].each do |config_key|
       it 'raises when no #{config_key.to_s} is provided in config' do
         @sample_zipkin_tracer_config.delete(config_key.to_sym)
@@ -24,12 +39,12 @@ describe ZipkinTracer::RackHandler do
     
     it 'raise when sample rate is given but less than 0' do
       @sample_zipkin_tracer_config[:sample_rate] = -0.1
-      expect{ ZipkinTracer::RackHandler.new(@mocked_app) }.to raise_error(ArgumentError)
+      expect{ ZipkinTracer::RackHandler.new(@mocked_app, @sample_zipkin_tracer_config) }.to raise_error(ArgumentError)
     end
 
     it 'raise when sample rate is given but greater than 1' do
       @sample_zipkin_tracer_config[:sample_rate] = 1.1
-      expect{ ZipkinTracer::RackHandler.new(@mocked_app) }.to raise_error(ArgumentError)
+      expect{ ZipkinTracer::RackHandler.new(@mocked_app, @sample_zipkin_tracer_config) }.to raise_error(ArgumentError)
     end
     
     it 'sets sample_rate if not configured' do
