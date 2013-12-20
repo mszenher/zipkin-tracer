@@ -2,10 +2,6 @@ require 'spec_helper'
 require 'zipkin-tracer'
 
 describe ZipkinTracer::FaradayHandler do
-
-  def make_app
-    
-  end
   
   describe 'call' do
     
