@@ -22,7 +22,7 @@ describe ZipkinTracer::ProcessTracer do
     end
   end
 
-  describe '#sample_rate' do
+  describe '#configure_sample_rate' do
     context 'when declared' do
       context 'when greater than 1.0 or less than 0.0' do
         it('raises an error') { expect { tracer.configure(config_args.merge({sample_rate: -1.0})) }.to raise_error }
