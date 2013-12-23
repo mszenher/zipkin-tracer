@@ -42,7 +42,7 @@ module ZipkinTracer extend self
       end
 
       # Sample rate can be reconfigured
-      # TODO: Test effective
+      # TODO: Needs tests, especially for efficacy
       #
       def configure_sample_rate(configured_sample_rate = nil)
         @sample_rate = if configured_sample_rate && (configured_sample_rate < 0.0 || configured_sample_rate > 1.0)
@@ -67,7 +67,7 @@ module ZipkinTracer extend self
       def record(trace_id, rpc_name, process, &block)
         ::Trace.push(trace_id)
         ::Trace.set_rpc_name(rpc_name) 
-        # REVIEW: This is so the span is named for the internal method or process, which is useful but not necessarily correct
+        # REVIEW: Naming for the internal method or process, which is useful but not necessarily correct
         ::Trace.default_endpoint.service_name = "#{@service_name} #{process}"
         ::Trace.record(::Trace::BinaryAnnotation.new('process', process, "STRING", ::Trace.default_endpoint))
         ::Trace.record(::Trace::Annotation.new(::Trace::Annotation::SERVER_RECV, ::Trace.default_endpoint))
