@@ -22,7 +22,6 @@ module ZipkinTracer extend self
         ::Trace.tracer = ::Trace::ZipkinTracer.new(CarelessScribe.new(@scribe), @scribe_max_buffer)
       end
 
-
       def start_new_trace(rpc_name, process, &block)
         trace_id = Trace::TraceId.new(*trace_parameters)
         record(trace_id, rpc_name, process, &block)
