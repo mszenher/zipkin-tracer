@@ -1,5 +1,5 @@
 require 'spec_helper'
-require 'zipkin-tracer/zipkin-tracer_process_tracer'
+require 'zipkin-tracer/process_tracer'
 
 describe ZipkinTracer::ProcessTracer do
   let(:config_args) { {
