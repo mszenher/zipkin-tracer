@@ -31,11 +31,14 @@ Gem::Specification.new do |s|
   s.files                     = Dir.glob("{bin,lib}/**/*")
   s.require_path              = 'lib'
 
-  s.add_dependency "finagle-thrift"
-  s.add_dependency "scribe"
+  s.add_dependency 'finagle-thrift'
+  s.add_dependency 'scribe'
   
-  s.add_development_dependency 'rspec'
-  s.add_development_dependency 'rspec-mocks'
-  s.add_development_dependency('debugger', '~> 1.6.0')
-  s.add_development_dependency('simplecov')
+  s.add_development_dependency 'rspec', '2.14.1'
+  s.add_development_dependency 'rspec-mocks', '2.14.1'
+  s.add_development_dependency 'debugger', '~> 1.6.0'
+  s.add_development_dependency 'simplecov', '0.8.2'
+  s.add_development_dependency 'rack', '1.5.2'
+  s.add_development_dependency 'thin', '1.6.1'
+  s.add_development_dependency 'faraday', '0.8.8'
 end
