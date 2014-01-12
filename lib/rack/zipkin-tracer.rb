@@ -71,8 +71,13 @@ module ZipkinTracer extend self
 
     def call(env)
       id = get_or_create_trace_id(env)
-        
-      ::Trace.default_endpoint = ::Trace.default_endpoint.with_service_name(@service_name).with_port(@service_port)
+      
+      begin
+        ::Trace.default_endpoint = ::Trace.default_endpoint.with_service_name(@service_name).with_port(@service_port)
+      rescue => e
+        @logger.warn 'Cannot connect to scribe service' if @logger
+      end
+      
       ::Trace.sample_rate=(@sample_rate)
     
       # pass zipkin cross application trace variables to consuming application

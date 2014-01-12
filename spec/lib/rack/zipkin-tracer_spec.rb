@@ -86,6 +86,9 @@ describe ZipkinTracer::RackHandler do
     
     describe 'setting values in Thread.current' do
       before do
+        # Need to stub this b/c we aren't talking to a live Zipkin collector in these tests.
+        ::Trace.stub(:default_endpoint)
+        
         # delete here to ensure that 'call' does what it should in setting Thread.current values
         ZipkinTracer::RackHandler::B3_HEADERS.each do |header_key|
           Thread.current[header_key] = ""
