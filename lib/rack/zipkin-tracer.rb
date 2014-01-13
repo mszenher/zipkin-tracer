@@ -66,6 +66,8 @@ module ZipkinTracer extend self
           0.1
         end
 
+      @logger = config[:logger]
+        
       ::Trace.tracer = ::Trace::ZipkinTracer.new(CarelessScribe.new(scribe), scribe_max_buffer)
     end
 
@@ -86,7 +88,7 @@ module ZipkinTracer extend self
       Thread.current['HTTP_X_B3_PARENTSPANID'] = id.parent_id
       Thread.current['HTTP_X_B3_SPANID'] = id.span_id
       Thread.current['HTTP_X_B3_SAMPLED'] = id.sampled
-
+      
       # TODO: Nothing wonky that the tracer does should stop us from calling the app!!!
       tracing_filter(id, env) { @app.call(env) }
     end

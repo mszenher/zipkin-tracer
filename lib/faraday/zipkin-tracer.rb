@@ -5,11 +5,13 @@ require 'faraday'
 module ZipkinTracer
     class FaradayHandler < ::Faraday::Middleware
 
-      def initialize(app)
+      def initialize(app, init = {})
+        @logger = init[:logger]
+        
         super(app)
       end
 
-      def call(env)
+      def call(env)        
         # TODO:  It would be nice to do this stuff in a nice loop but Faraday doesn't seem to 
         # like the loop.  So in future try again to loop!
         # TODO:  Encapsulate Thread.current[:HTTP_X_B3_TRACEID] and stuff in a class.
@@ -22,7 +24,7 @@ module ZipkinTracer
           env[:request_headers]['X-B3-Traceid'] ||= trace_id.to_s
           env[:request_headers]['X-B3-Spanid'] ||= span_id.to_s
           env[:request_headers]['X-B3-Parentid'] ||= parent_id.to_s
-          env[:request_headers]['X-B3-Sampled'] ||= sampled.to_s
+          env[:request_headers]['X-B3-Sampled'] ||= sampled.to_s          
         rescue # Rescue everything!  The call must go on!
           # TODO:  log a nice error message here
         end

@@ -4,10 +4,15 @@ require 'support/test_app'
 
 describe 'integrations' do
   before(:all) do
-    @port = 4444
-    @base_url = "http://localhost:#{@port}"
+    @port1 = 4444
+    @base_url1 = "http://localhost:#{@port1}"
     ru_location = File.join(`pwd`.chomp, 'spec', 'support', 'test_app_config.ru')
-    @pipe = IO.popen("rackup #{ru_location} -p #{@port}")
+    @pipe1 = IO.popen("rackup #{ru_location} -p #{@port1}")
+
+    @port2 = 4445
+    @base_url2 = "http://localhost:#{@port2}"
+    @pipe2 = IO.popen("rackup #{ru_location} -p #{@port2}")
+    
     sleep(2)
   end
   
@@ -16,17 +21,43 @@ describe 'integrations' do
   end
   
   after(:all) do
-    Process.kill("KILL", @pipe.pid)
+    Process.kill("KILL", @pipe1.pid)
+    Process.kill("KILL", @pipe2.pid)
   end
   
   it 'has correct trace information on initial call to instrumented service' do
-    response_str = `curl #{@base_url}`
-    response = TestApp.read_traces
+    response_str = `curl #{@base_url1}/hello_world`
     
-    response.size.should == 1
-    response[0]['trace_id'].should_not be_empty
-    response[0]['parent_span_id'].should be_empty
-    response[0]['span_id'].should_not be_empty
-    [true, false].include?(response[0]['sampled']).should be_true
+    response_str.should == 'Hello World'
+    traces = TestApp.read_traces
+    traces.size.should == 1
+    assert_level_0_trace_correct(traces)
   end  
+  
+  it 'has correct trace information when the instrumented service calls itself, passing on trace information' do
+    response_str = `curl #{@base_url1}/ouroboros`
+
+    response_str.should == 'Ouroboros says Hello World'
+    traces = TestApp.read_traces
+    traces.size.should == 2
+    assert_level_0_trace_correct(traces)
+    assert_level_1_trace_correct(traces)
+  end
+  
+  # Assert that the first level of trace data is correct (or not!)
+  def assert_level_0_trace_correct(traces)
+    traces[0]['trace_id'].should_not be_empty
+    traces[0]['parent_span_id'].should be_empty
+    traces[0]['span_id'].should_not be_empty
+    [true, false].include?(traces[0]['sampled']).should be_true
+  end
+  
+  # Assert that the second level of trace data is correct (or not!)
+  def assert_level_1_trace_correct(traces)
+    traces[1]['trace_id'].should == traces[0]['trace_id']
+    traces[1]['parent_span_id'].should == traces[0]['span_id']
+    traces[1]['span_id'].should_not be_empty
+    [traces[1]['trace_id'], traces[1]['parent_span_id']].include?(traces[1]['span_id']).should be_false
+    [true, false].include?(traces[1]['sampled']).should be_true
+  end
 end
