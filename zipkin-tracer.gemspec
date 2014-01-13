@@ -41,4 +41,5 @@ Gem::Specification.new do |s|
   s.add_development_dependency 'rack', '1.5.2'
   s.add_development_dependency 'thin', '1.6.1'
   s.add_development_dependency 'faraday', '0.8.8'
+  s.add_development_dependency 'addressable'
 end

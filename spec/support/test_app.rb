@@ -1,5 +1,6 @@
 require 'json'
 require 'faraday'
+require 'addressable/uri'
 require File.join(`pwd`.chomp, 'spec', 'support', 'in_memory_logger')
 
 # This handy little app consumes both the rack and faraday zipkin middlewares.  We'll use 
@@ -13,7 +14,7 @@ class TestApp
     if req.path == '/hello_world'
       [ 200, {'Content-Type' => 'application/json'}, ['Hello World'] ]
     elsif req.path == '/ouroboros' # this path will cause the TestApp to call its own helloworld path
-      port = 4445
+      port = Addressable::URI.parse(req.fullpath).query_values['out_port']
       base_url = "http://localhost:#{port}"
       
       conn = Faraday.new(:url => base_url) do |faraday|

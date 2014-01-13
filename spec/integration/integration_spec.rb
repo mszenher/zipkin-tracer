@@ -35,7 +35,7 @@ describe 'integrations' do
   end  
   
   it 'has correct trace information when the instrumented service calls itself, passing on trace information' do
-    response_str = `curl #{@base_url1}/ouroboros`
+    response_str = `curl #{@base_url1}/ouroboros?out_port=#{@port2}`
 
     response_str.should == 'Ouroboros says Hello World'
     traces = TestApp.read_traces
