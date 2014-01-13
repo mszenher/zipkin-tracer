@@ -41,22 +41,26 @@ class TestApp
   # A 'scribe' to store our traces.
   class << self
     def read_traces
-      file = File.open('traces.txt', 'r')
+      file = File.open(traces_file_name, 'r')
       lines = file.readlines.map{ |l| JSON.parse(l) }
       file.close
       lines
     end
     
     def add_trace(trace)
-      `touch traces.txt`
-      open('traces.txt', 'a') { |f|
+      `touch traces.txt` # create the traces file if it doesn't exist
+      open(traces_file_name, 'a') { |f|
         f.puts trace
       }      
     end
     
     def clear_traces
-      File.unlink('traces.txt')
-    end    
+      File.unlink traces_file_name
+    end
+    
+    def traces_file_name
+      'traces.txt'
+    end
   end
   
 end
