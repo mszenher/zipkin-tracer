@@ -2,6 +2,11 @@ require 'spec_helper'
 require 'zipkin-tracer/process_tracer'
 
 describe ZipkinTracer::ProcessTracer do
+  before { 
+    # Need to stub this b/c we aren't talking to a live Zipkin collector in these tests.
+    ::Trace.stub(:default_endpoint)
+    ::Trace.stub_chain(:default_endpoint, :service_name=) 
+  }
   let(:config_args) { {
     service_name: 'Test Service', 
     scribe_server: 'test-server:8080'

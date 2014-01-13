@@ -5,7 +5,9 @@ require 'faraday'
 module ZipkinTracer
     class FaradayHandler < ::Faraday::Middleware
 
-      def initialize(app)
+      def initialize(app, init = {})
+        @logger = init[:logger]
+        
         super(app)
       end
 
