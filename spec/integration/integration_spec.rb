@@ -44,7 +44,10 @@ describe 'integrations' do
     assert_level_1_trace_correct(traces)
   end
   
-  # Assert that the first level of trace data is correct (or not!)
+  # Assert that the first level of trace data is correct (or not!).
+  # The trace_id and span_id should not be empty.  The parent_span_id should
+  # be empty, as a 0-level trace has no parent.  The value of 'sampled' should
+  # be a boolean.
   def assert_level_0_trace_correct(traces)
     traces[0]['trace_id'].should_not be_empty
     traces[0]['parent_span_id'].should be_empty
@@ -52,7 +55,10 @@ describe 'integrations' do
     [true, false].include?(traces[0]['sampled']).should be_true
   end
   
-  # Assert that the second level of trace data is correct (or not!)
+  # Assert that the second level of trace data is correct (or not!).
+  # The trace_id should be that of the 0th level trace_id.  The first level
+  # parent_span_id should be identical to the 0th level span_id.  The first
+  # level span id should be a new id.
   def assert_level_1_trace_correct(traces)
     traces[1]['trace_id'].should == traces[0]['trace_id']
     traces[1]['parent_span_id'].should == traces[0]['span_id']
