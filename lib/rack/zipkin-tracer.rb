@@ -15,6 +15,7 @@ require 'finagle-thrift'
 require 'finagle-thrift/trace'
 require 'scribe'
 require 'rack/careless_scribe'
+require 'zipkin-tracer/intra_process_trace_id'
 
 module ZipkinTracer
 
@@ -82,13 +83,10 @@ module ZipkinTracer
       
       ::Trace.sample_rate=(@sample_rate)
     
-      # pass zipkin cross application trace variables to consuming application
-      # so it can pass them on in turn if it makes more requests
-      Thread.current['HTTP_X_B3_TRACEID'] = id.trace_id
-      Thread.current['HTTP_X_B3_PARENTSPANID'] = id.parent_id
-      Thread.current['HTTP_X_B3_SPANID'] = id.span_id
-      Thread.current['HTTP_X_B3_SAMPLED'] = id.sampled
-
+      # Store the TraceId data in ZipkinTracer::IntraProcessTraceId so it can be used within the consuming
+      # process.
+      ZipkinTracer::IntraProcessTraceId.current = id
+      
       # TODO: Nothing wonky that the tracer does should stop us from calling the app!!!
       tracing_filter(id, env) { @app.call(env) }
     end
