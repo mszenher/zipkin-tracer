@@ -16,7 +16,7 @@ require 'finagle-thrift/trace'
 require 'scribe'
 require 'rack/careless_scribe'
 
-module ZipkinTracer extend self
+module ZipkinTracer
 
   class RackHandler
     B3_HEADERS = %w[HTTP_X_B3_TRACEID HTTP_X_B3_PARENTSPANID HTTP_X_B3_SPANID HTTP_X_B3_SAMPLED]
