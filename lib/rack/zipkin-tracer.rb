@@ -75,6 +75,10 @@ module ZipkinTracer
     def call(env)
       id = get_or_create_trace_id(env)
       
+      # Store the TraceId data in ZipkinTracer::IntraProcessTraceId so it can be used within the consuming
+      # process.
+      ZipkinTracer::IntraProcessTraceId.current = id
+      
       begin
         ::Trace.default_endpoint = ::Trace.default_endpoint.with_service_name(@service_name).with_port(@service_port)
       rescue => e
@@ -82,11 +86,7 @@ module ZipkinTracer
       end
       
       ::Trace.sample_rate=(@sample_rate)
-    
-      # Store the TraceId data in ZipkinTracer::IntraProcessTraceId so it can be used within the consuming
-      # process.
-      ZipkinTracer::IntraProcessTraceId.current = id
-      
+          
       # TODO: Nothing wonky that the tracer does should stop us from calling the app!!!
       tracing_filter(id, env) { @app.call(env) }
     end
