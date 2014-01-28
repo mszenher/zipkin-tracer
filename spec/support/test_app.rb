@@ -31,10 +31,10 @@ class TestApp
   
   def store_current_trace_info
     current_trace_info = {
-      'trace_id'        => Thread.current['HTTP_X_B3_TRACEID'].to_s,
-      'parent_span_id'  => Thread.current['HTTP_X_B3_PARENTSPANID'].to_s,
-      'span_id'         => Thread.current['HTTP_X_B3_SPANID'].to_s,
-      'sampled'         => Thread.current['HTTP_X_B3_SAMPLED']
+      'trace_id'        => ZipkinTracer::IntraProcessTraceId.current.trace_id.to_s,
+      'parent_span_id'  => ZipkinTracer::IntraProcessTraceId.current.parent_id.to_s,
+      'span_id'         => ZipkinTracer::IntraProcessTraceId.current.span_id.to_s,
+      'sampled'         => ZipkinTracer::IntraProcessTraceId.current.sampled
     }
     self.class.add_trace(current_trace_info.to_json)
   end
