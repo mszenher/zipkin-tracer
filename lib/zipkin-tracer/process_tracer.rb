@@ -24,6 +24,7 @@ module ZipkinTracer extend self
 
       def start_new_trace(rpc_name, process, &block)
         trace_id = Trace::TraceId.new(*trace_parameters)
+        ZipkinTracer::IntraProcessTraceId.current = trace_id
         record(trace_id, rpc_name, process, &block)
       end
 
@@ -31,12 +32,19 @@ module ZipkinTracer extend self
       #   account for presence of HTTP traces / parents
       #
       def trace_internal(rpc_name, process, &block) # 
-        trace_id = Trace::TraceId.new(*trace_parameters([Thread.current['TRACEID']]))
+        trace_id = Trace::TraceId.new(*trace_parameters([ZipkinTracer::IntraProcessTraceId.current.trace_id.to_s]))
+        ZipkinTracer::IntraProcessTraceId.current = trace_id
         record(trace_id, rpc_name, process, &block)
       end
       
       def trace_child(rpc_name, process, &block)
-        trace_id = Trace::TraceId.new(*trace_parameters([Thread.current['TRACEID'], Thread.current['SPANID']]))
+        trace_id = Trace::TraceId.new(
+          *trace_parameters([
+            ZipkinTracer::IntraProcessTraceId.current.trace_id.to_s, 
+            ZipkinTracer::IntraProcessTraceId.current.span_id.to_s
+          ])
+        )
+        ZipkinTracer::IntraProcessTraceId.current = trace_id
         record(trace_id, rpc_name, process, &block)
       end
 
@@ -55,11 +63,11 @@ module ZipkinTracer extend self
 
       def trace_parameters(params = [])
         [
-          params[0] || Thread.current['TRACEID'] = Trace.generate_id, # TRACEID
-          Thread.current['PARENTID'] = params[1],                     # PARENTID
-          Thread.current['SPANID'] = Trace.generate_id,               # SPANID
-          @sample_rate,                                               # SAMPLE_RATE
-          1                                                           # FLAGS
+          params[0] || Trace.generate_id,	# TRACEID
+          params[1],				# PARENTID
+          Trace.generate_id,			# SPANID
+          @sample_rate,				# SAMPLE_RATE
+          1					# FLAGS
         ]
       end
 
