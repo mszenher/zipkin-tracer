@@ -35,7 +35,9 @@ module ZipkinTracer extend self
       end
       
       def trace_child(rpc_name, process, &block)
-        if ZipkinTracer::IntraProcessTraceId.current
+        # REVIEW: Raise an error if there is no current trace
+        #
+        if ZipkinTracer::IntraProcessTraceId.current # Can only trace internal processes if there is already an existing trace
           trace_id = Trace::TraceId.new(*trace_parameters([current_trace_trace_id, current_trace_span_id]))
           record(trace_id, rpc_name, process, &block)
         end
