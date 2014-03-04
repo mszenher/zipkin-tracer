@@ -24,30 +24,19 @@ module ZipkinTracer extend self
 
       def start_new_trace(rpc_name, process, &block)
         trace_id = Trace::TraceId.new(*trace_parameters)
-        ZipkinTracer::IntraProcessTraceId.current = trace_id
         record(trace_id, rpc_name, process, &block)
       end
 
-      # REVIEW: Should #trace_internal and #trace_child 
-      #   account for presence of HTTP traces / parents
-      #
-      def trace_internal(rpc_name, process, &block) # 
-        if ZipkinTracer::IntraProcessTraceId.current.present?
-          trace_id = Trace::TraceId.new(*trace_parameters([ZipkinTracer::IntraProcessTraceId.current.trace_id.to_s]))
-          ZipkinTracer::IntraProcessTraceId.current = trace_id
+      def trace_internal(rpc_name, process, &block)
+        if ZipkinTracer::IntraProcessTraceId.current
+          trace_id = Trace::TraceId.new(*trace_parameters([current_trace_trace_id]))
           record(trace_id, rpc_name, process, &block)
         end
       end
       
       def trace_child(rpc_name, process, &block)
-        if ZipkinTracer::IntraProcessTraceId.current.present?
-          trace_id = Trace::TraceId.new(
-            *trace_parameters([
-              ZipkinTracer::IntraProcessTraceId.current.trace_id.to_s, 
-              ZipkinTracer::IntraProcessTraceId.current.span_id.to_s
-            ])
-          )
-          ZipkinTracer::IntraProcessTraceId.current = trace_id
+        if ZipkinTracer::IntraProcessTraceId.current
+          trace_id = Trace::TraceId.new(*trace_parameters([current_trace_trace_id, current_trace_span_id]))
           record(trace_id, rpc_name, process, &block)
         end
       end
@@ -64,6 +53,14 @@ module ZipkinTracer extend self
       end
 
       private
+ 
+      def current_trace_trace_id
+        ZipkinTracer::IntraProcessTraceId.current.trace_id
+      end
+
+      def current_trace_span_id
+        ZipkinTracer::IntraProcessTraceId.current.span_id
+      end
 
       def trace_parameters(params = [])
         [
@@ -76,6 +73,8 @@ module ZipkinTracer extend self
       end
 
       def record(trace_id, rpc_name, process, &block)
+        ZipkinTracer::IntraProcessTraceId.current = trace_id
+
         ::Trace.push(trace_id)
         ::Trace.set_rpc_name(rpc_name) 
         # REVIEW: Naming for the internal method or process, which is useful but not necessarily correct
