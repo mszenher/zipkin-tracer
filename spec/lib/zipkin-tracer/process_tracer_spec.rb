@@ -64,7 +64,7 @@ describe ZipkinTracer::ProcessTracer do
 
       it 'instantiates a new SPANID' do
         tracer.start_new_trace(rpc_name, process)
-        ZipkinTracer::IntraProcessTraceId.current.span_id.to_s.should_not be_nil
+        ZipkinTracer::IntraProcessTraceId.current.span_id.should_not be_nil
       end
 
       it 'pushes the trace id to the trace' do
@@ -85,7 +85,7 @@ describe ZipkinTracer::ProcessTracer do
       it 'uses the current TRACEID as TRACEID' do
         traceid = ZipkinTracer::IntraProcessTraceId.current
         tracer.trace_internal(rpc_name, process) 
-        Thread.current['TRACEID'].trace_id.to_s.should eq(traceid.trace_id.to_s)
+        Thread.current['TRACEID'].trace_id.should eq(traceid.trace_id)
       end
 
       it 'does not use a PARENTID' do
@@ -94,9 +94,9 @@ describe ZipkinTracer::ProcessTracer do
       end
 
       it 'creates a new SPANID' do
-        spanid = ZipkinTracer::IntraProcessTraceId.current.span_id.to_s
+        spanid = ZipkinTracer::IntraProcessTraceId.current.span_id
         tracer.trace_internal(rpc_name, process) 
-        ZipkinTracer::IntraProcessTraceId.current.span_id.to_s.should_not eq(spanid)
+        ZipkinTracer::IntraProcessTraceId.current.span_id.should_not eq(spanid)
       end
     end
 
@@ -104,21 +104,21 @@ describe ZipkinTracer::ProcessTracer do
       before { tracer.start_new_trace(rpc_name, process) }
 
       it 'uses the current TRACEID as TRACEID' do
-        traceid = ZipkinTracer::IntraProcessTraceId.current.trace_id.to_s
+        traceid = ZipkinTracer::IntraProcessTraceId.current.trace_id
         tracer.trace_child(rpc_name, process) 
-        ZipkinTracer::IntraProcessTraceId.current.trace_id.to_s.should eq(traceid)
+        ZipkinTracer::IntraProcessTraceId.current.trace_id.should eq(traceid)
       end
 
       it 'updates PARENTID using the current SPANID' do
-        spanid = ZipkinTracer::IntraProcessTraceId.current.span_id.to_s
+        spanid = ZipkinTracer::IntraProcessTraceId.current.span_id
         tracer.trace_child(rpc_name, process) 
-        ZipkinTracer::IntraProcessTraceId.current.parent_id.to_s.should eq(spanid)
+        ZipkinTracer::IntraProcessTraceId.current.parent_id.should eq(spanid)
       end
 
       it 'creates a new SPANID' do
-        spanid = ZipkinTracer::IntraProcessTraceId.current.span_id.to_s
+        spanid = ZipkinTracer::IntraProcessTraceId.current.span_id
         tracer.trace_child(rpc_name, process) 
-        ZipkinTracer::IntraProcessTraceId.current.span_id.to_s.should_not eq(spanid)
+        ZipkinTracer::IntraProcessTraceId.current.span_id.should_not eq(spanid)
       end
 
       it 'pushes the trace id to the trace' do
