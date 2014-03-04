@@ -32,20 +32,24 @@ module ZipkinTracer extend self
       #   account for presence of HTTP traces / parents
       #
       def trace_internal(rpc_name, process, &block) # 
-        trace_id = Trace::TraceId.new(*trace_parameters([ZipkinTracer::IntraProcessTraceId.current.trace_id.to_s]))
-        ZipkinTracer::IntraProcessTraceId.current = trace_id
-        record(trace_id, rpc_name, process, &block)
+        if ZipkinTracer::IntraProcessTraceId.current.present?
+          trace_id = Trace::TraceId.new(*trace_parameters([ZipkinTracer::IntraProcessTraceId.current.trace_id.to_s]))
+          ZipkinTracer::IntraProcessTraceId.current = trace_id
+          record(trace_id, rpc_name, process, &block)
+        end
       end
       
       def trace_child(rpc_name, process, &block)
-        trace_id = Trace::TraceId.new(
-          *trace_parameters([
-            ZipkinTracer::IntraProcessTraceId.current.trace_id.to_s, 
-            ZipkinTracer::IntraProcessTraceId.current.span_id.to_s
-          ])
-        )
-        ZipkinTracer::IntraProcessTraceId.current = trace_id
-        record(trace_id, rpc_name, process, &block)
+        if ZipkinTracer::IntraProcessTraceId.current.present?
+          trace_id = Trace::TraceId.new(
+            *trace_parameters([
+              ZipkinTracer::IntraProcessTraceId.current.trace_id.to_s, 
+              ZipkinTracer::IntraProcessTraceId.current.span_id.to_s
+            ])
+          )
+          ZipkinTracer::IntraProcessTraceId.current = trace_id
+          record(trace_id, rpc_name, process, &block)
+        end
       end
 
       # Sample rate can be reconfigured
