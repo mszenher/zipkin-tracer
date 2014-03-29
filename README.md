@@ -14,10 +14,10 @@ First off, you shouldn't use Zipkin in your test environment unless you really, 
 
 Assuming you are using Bundler, update your Gemfile as follows:
 ```
-gem 'zipkin-tracer', :git => 'git@github.com:mszenher/zipkin-tracer.git', :require => 'zipkin-tracer', :tag => 'v0.3.0'
+gem 'zipkin-tracer', :git => 'git@github.com:mszenher/zipkin-tracer.git', :require => 'zipkin-tracer', :tag => 'v0.4.0'
 gem 'thin'
 ```
-Of course, you can change the `:tag` option from `'v0.3.0` to any tagged version you choose.  Also, the dependence on the `thin`
+Of course, you can change the `:tag` option from `'v0.4.0` to any tagged version you choose.  Also, the dependence on the `thin`
 gem will hopefully go away soon.
 
 Initialize the middleware as follows (this assumes you are doing the initialization in a Rails `config/initializers` file, e.g. 
